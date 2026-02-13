@@ -32,6 +32,16 @@ func CreateView(config *config.Config, svc *service.SlackService) (*View, error)
 		return nil, err
 	}
 
+	defaultIndex := 0
+	for i, ch := range slackChans {
+		if ch.ID == config.DefaultChannelID {
+			defaultIndex = i
+			break
+		}
+	}
+	svc.SelectedChannelIndex = defaultIndex
+	channels.SelectedChannel = defaultIndex
+
 	// Channels: set channels in component
 	channels.SetChannels(slackChans)
 

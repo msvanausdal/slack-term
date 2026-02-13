@@ -28,6 +28,7 @@ type SlackService struct {
 	ThreadCache     map[string]string
 	CurrentUserID   string
 	CurrentUsername string
+	SelectedChannelIndex int
 }
 
 // NewSlackService is the constructor for the SlackService and will initialize
@@ -38,6 +39,7 @@ func NewSlackService(config *config.Config) (*SlackService, error) {
 		Client:      slack.New(config.SlackToken),
 		UserCache:   make(map[string]string),
 		ThreadCache: make(map[string]string),
+		SelectedChannelIndex: 0,
 	}
 
 	// Get user associated with token, mainly
@@ -78,46 +80,17 @@ func (s *SlackService) GetChannels() ([]components.ChannelItem, error) {
 	slackChans := make([]slack.Channel, 0)
 
 	// Initial request
-	initChans, initCur, err := s.Client.GetConversations(
-		&slack.GetConversationsParameters{
-			ExcludeArchived: "true",
-			Limit:           1000,
-			Types: []string{
-				"public_channel",
-				"private_channel",
-				"im",
-				"mpim",
-			},
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	slackChans = append(slackChans, initChans...)
-
-	// Paginate over additional channels
-	nextCur := initCur
-	for nextCur != "" {
-		channels, cursor, err := s.Client.GetConversations(
-			&slack.GetConversationsParameters{
-				Cursor:          nextCur,
-				ExcludeArchived: "true",
-				Limit:           1000,
-				Types: []string{
-					"public_channel",
-					"private_channel",
-					"im",
-					"mpim",
-				},
-			},
-		)
+	for _, id := range s.Config.VisibleChannelIDs {
+		ch, err := s.Client.GetConversationInfo(id, false)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
-		slackChans = append(slackChans, channels...)
-		nextCur = cursor
+		if ch.IsArchived {
+			continue
+		}
+
+		slackChans = append(slackChans, *ch)
 	}
 
 	// We're creating tempChan, because we want to be able to

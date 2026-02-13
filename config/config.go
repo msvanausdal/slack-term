@@ -27,6 +27,8 @@ type Config struct {
 	ThreadsWidth int                   `json:"threads_width"`
 	KeyMap       map[string]keyMapping `json:"key_map"`
 	Theme        Theme                 `json:"theme"`
+	VisibleChannelIDs []string		   `json:"visible_channel_ids"`
+	DefaultChannelID string			   `json:"default_channel_id"`
 }
 
 type keyMapping map[string]string
