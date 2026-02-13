@@ -1,3 +1,24 @@
+Forked from [jpbruinsslot/slack-term](https://github.com/jpbruinsslot/slack-term)
+
+Change list:
+
+Add filtered channels and default-selected channel support
+
+- Modify GetChannels() to fetch only channels listed in config.VisibleChannelIDs instead of fetching all workspace channels, reducing Slack API calls.
+- Add config field DefaultChannelID to specify which channel is selected on startup.
+- Introduce SelectedChannelIndex in SlackService and set default in CreateView().
+- Maintain existing bucket sorting and UI behavior.
+
+Config options:
+
+"visible_channel_ids": [
+   "CHANNEL_ID",
+   "CHANNEL_ID_2",
+   ...
+]
+
+"default_channel_id": "CHANNEL_ID"
+
 slack-term
 ==========
 
